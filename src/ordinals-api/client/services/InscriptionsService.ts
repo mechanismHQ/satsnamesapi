@@ -13,7 +13,7 @@ export class InscriptionsService {
    * @returns any Default Response
    * @throws ApiError
    */
-  public getOrdinalsV1Inscriptions({
+  public getInscriptions({
     genesisBlock,
     fromGenesisBlockHeight,
     toGenesisBlockHeight,
@@ -129,7 +129,7 @@ export class InscriptionsService {
     results: Array<{
       id: string;
       number: number;
-      address: string;
+      address: string | null;
       genesis_address: string;
       genesis_block_height: number;
       genesis_block_hash: string;
@@ -139,8 +139,8 @@ export class InscriptionsService {
       tx_id: string;
       location: string;
       output: string;
-      value: string;
-      offset: string;
+      value: string | null;
+      offset: string | null;
       sat_ordinal: string;
       sat_rarity: string;
       sat_coinbase_height: number;
@@ -183,12 +183,80 @@ export class InscriptionsService {
   }
 
   /**
+   * Transfers per block
+   * Retrieves a list of inscription transfers that ocurred at a specific Bitcoin block
+   * @returns any Default Response
+   * @throws ApiError
+   */
+  public getTransfersPerBlock({
+    block,
+    offset,
+    limit,
+  }: {
+    /**
+     * Bitcoin block identifier (height or hash)
+     */
+    block: string;
+    /**
+     * Result offset
+     */
+    offset?: number;
+    /**
+     * Results per page
+     */
+    limit?: number;
+  }): CancelablePromise<{
+    limit: number;
+    offset: number;
+    total: number;
+    results: Array<{
+      id: string;
+      number: number;
+      from: {
+        block_height: number;
+        block_hash: string;
+        address: string | null;
+        tx_id: string;
+        location: string;
+        output: string;
+        value: string | null;
+        offset: string | null;
+        timestamp: number;
+      };
+      to: {
+        block_height: number;
+        block_hash: string;
+        address: string | null;
+        tx_id: string;
+        location: string;
+        output: string;
+        value: string | null;
+        offset: string | null;
+        timestamp: number;
+      };
+    }>;
+  }> {
+    return this.httpRequest.request({
+      method: "GET",
+      url: "/ordinals/v1/inscriptions/transfers",
+      query: {
+        block: block,
+        offset: offset,
+        limit: limit,
+      },
+      errors: {
+        404: `Default Response`,
+      },
+    });
+  }
+
+  /**
    * Inscription
    * Retrieves a single inscription
    * @returns any Default Response
    * @throws ApiError
    */
-  public getOrdinalsV1Inscriptions1({
+  public getInscription({
     id,
   }: {
     /**
@@ -198,7 +266,7 @@ export class InscriptionsService {
   }): CancelablePromise<{
     id: string;
     number: number;
-    address: string;
+    address: string | null;
     genesis_address: string;
     genesis_block_height: number;
     genesis_block_hash: string;
@@ -208,8 +276,8 @@ export class InscriptionsService {
     tx_id: string;
     location: string;
     output: string;
-    value: string;
-    offset: string;
+    value: string | null;
+    offset: string | null;
     sat_ordinal: string;
     sat_rarity: string;
     sat_coinbase_height: number;
@@ -236,7 +304,7 @@ export class InscriptionsService {
    * @returns any Default Response
    * @throws ApiError
    */
-  public getOrdinalsV1InscriptionsContent({
+  public getInscriptionContent({
     id,
   }: {
     /**
@@ -249,6 +317,61 @@ export class InscriptionsService {
       url: "/ordinals/v1/inscriptions/{id}/content",
       path: {
         id: id,
+      },
+      errors: {
+        404: `Default Response`,
+      },
+    });
+  }
+
+  /**
+   * Inscription transfers
+   * Retrieves all transfers for a single inscription
+   * @returns any Default Response
+   * @throws ApiError
+   */
+  public getInscriptionTransfers({
+    id,
+    offset,
+    limit,
+  }: {
+    /**
+     * Inscription unique identifier (number or ID)
+     */
+    id: string | number;
+    /**
+     * Result offset
+     */
+    offset?: number;
+    /**
+     * Results per page
+     */
+    limit?: number;
+  }): CancelablePromise<{
+    limit: number;
+    offset: number;
+    total: number;
+    results: Array<{
+      block_height: number;
+      block_hash: string;
+      address: string | null;
+      tx_id: string;
+      location: string;
+      output: string;
+      value: string | null;
+      offset: string | null;
+      timestamp: number;
+    }>;
+  }> {
+    return this.httpRequest.request({
+      method: "GET",
+      url: "/ordinals/v1/inscriptions/{id}/transfers",
+      path: {
+        id: id,
+      },
+      query: {
+        offset: offset,
+        limit: limit,
       },
       errors: {
         404: `Default Response`,
