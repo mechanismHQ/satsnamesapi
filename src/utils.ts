@@ -12,3 +12,7 @@ export function getCodePoints(str: string) {
 
   return codePoints.join("");
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
